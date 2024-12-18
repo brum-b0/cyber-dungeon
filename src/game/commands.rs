@@ -1,4 +1,4 @@
-use super::{player::Player, world::World};
+use super::{player::{self, Player}, world::World};
 
 pub fn process_command(command: &str, player: &mut Player, world: &mut World) -> String {
     //figured it would work best like argv
@@ -34,7 +34,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 current_room
                     .items
                     .iter()
-                    .map(|i| &i.name)
+                    .map(|i| &i.name)//we only need the names, not the entire item struct
                     .collect::<Vec<_>>(),
                 current_room.exits.keys().collect::<Vec<_>>()
             )
@@ -66,7 +66,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                         // Remove the item from the room's items
                         world.rooms[player.current_room]
                             .items
-                            .retain(|i| i.name != item_name);
+                            .retain(|i| i.name != item_name);//need to modify room items in place, rather than filter
                         format!("You picked up the {}.", item_name)
                     } else {
                         "That item cannot be taken.".to_string()
@@ -76,6 +76,28 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 }
             }
         }
-        _ => "Unknown command.".to_string(),//generic response to gibberish :)
+        "drop" => {
+            if parts.len() < 2 {
+                "Drop what?".to_string()
+            } else {
+                let item_name = parts[1];
+
+                if let Some(drop_item) = player
+                    .inventory
+                    .iter_mut()
+                    .find(|i| i.name == item_name)
+                    {
+                        let item = drop_item.clone();
+                        world.rooms[player.current_room]
+                        .items
+                        .push(item);
+                        player.remove_item(parts[1]);
+                        format!("You dropped the {}", item_name)
+                    } else {
+                        "There's nothing to drop".to_string()
+                    }
+            }
+        }
+        _ => "Unknown command.".to_string(),//generic response to things we dont' recognize :)
     }
 }

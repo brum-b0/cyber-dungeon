@@ -12,6 +12,7 @@ fn main() {
     let mut player = Player::new(0); // Start in the first room, but you can start wherever you want I guess
     let mut player_name = String::new();
 
+    print!("\x1B[2J");//clear window???? from stack overflow lol
     // this is more for my dungeon theme, can be whatever
     print!("Username: ");
     io::stdout().flush().unwrap();

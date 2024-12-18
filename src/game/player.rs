@@ -19,9 +19,9 @@ impl Player {
     pub fn take_item(&mut self, item: Item) {
         self.inventory.push(item);
     }
-
-    //not fully implemented for the player yet, but needs to put the item back in the room
-    pub fn drop_item(&mut self, item_name: &str) -> Option<Item> {
+    
+    
+    pub fn remove_item(&mut self, item_name: &str) -> Option<Item> {
         if let Some(index) = self.inventory.iter().position(|i| i.name == item_name) {
             Some(self.inventory.remove(index))
         } else {
