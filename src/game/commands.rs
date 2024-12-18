@@ -1,18 +1,20 @@
 use super::{player::Player, world::World};
 
 pub fn process_command(command: &str, player: &mut Player, world: &mut World) -> String {
+    //figured it would work best like argv
     let parts: Vec<&str> = command.trim().split_whitespace().collect();
 
     if parts.is_empty() {
         return "I don't understand that command.".to_string();
     }
-
+    //match on main command 
     match parts[0] {
-        "go" => {
-            if parts.len() < 2 {
+        
+        "go" => {//moves rooms
+            if parts.len() < 2 { //moving needs a direction
                 "Go where?".to_string()
             } else {
-                match player.move_room(parts[1], world) {
+                match player.move_room(parts[1], world) {//if we get an Ok for a move, we make it happen
                     Ok(_) => {
                         let current_room = &world.rooms[player.current_room];
                         format!(
@@ -24,7 +26,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 }
             }
         }
-        "look" => {
+        "look" => {//shows room description and debug print room items and exits
             let current_room = &world.rooms[player.current_room];
             format!(
                 "{}\nItems here: {:?}\nExits: {:?}",
@@ -37,7 +39,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 current_room.exits.keys().collect::<Vec<_>>()
             )
         }
-        "inventory" => {
+        "inventory" => {//grabs player inventory and shows it. we only need the item names displayed
             let items = player.inventory.iter().map(|i| &i.name).collect::<Vec<_>>();
             if items.is_empty() {
                 "You are not carrying anything.".to_string()
@@ -45,23 +47,23 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 format!("You are carrying: {:?}", items)
             }
         }
-        "take" => {
-            if parts.len() < 2 {
+        "take" => {//takes item from the room, clones it to player inventory and removes item from room
+            if parts.len() < 2 {//needs an item to take
                 "Take what?".to_string()
             } else {
                 let item_name = parts[1];
 
-                // Check if the item exists in the current room
+                // first, does this item exist in the room?
                 if let Some(room_item) = world.rooms[player.current_room]
                     .items
                     .iter_mut()
                     .find(|i| i.name == item_name)
                 {
                     if room_item.can_take {
-                        // If the item can be taken, take it from the room and add it to the player's inventory
-                        let item = room_item.clone(); // Clone it to own the item
-                        player.take_item(item);
-                        // Remove the item from the room
+                        // next, can the item be taken?
+                        let item = room_item.clone(); // clone it
+                        player.take_item(item);             // to own it :)
+                        // Remove the item from the room's items
                         world.rooms[player.current_room]
                             .items
                             .retain(|i| i.name != item_name);
@@ -74,6 +76,6 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 }
             }
         }
-        _ => "Unknown command.".to_string(),
+        _ => "Unknown command.".to_string(),//generic response to gibberish :)
     }
 }

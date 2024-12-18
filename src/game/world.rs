@@ -4,15 +4,15 @@ use std::collections::HashMap;
 pub struct Room {
     pub name: String,
     pub description: String,
-    pub items: Vec<Item>,
-    pub exits: HashMap<String, usize>, // Direction to room index, 
+    pub items: Vec<Item>, //items in room
+    pub exits: HashMap<String, usize>, // Direction/string to world vec index map
 }
 
 #[derive(Debug, Clone)]
 pub struct Item {
     pub name: String,
     pub description: String,
-    pub can_take: bool,
+    pub can_take: bool,//some objects cannot/should not be picked up
 }
 
 pub struct World {
@@ -24,7 +24,7 @@ impl World {
         World { rooms: Vec::new() }
     }
 
-    // Creates and adds a room to the world, returning its index
+    // Creates and adds a room to the world, returning its index so we can map adjacent rooms to the world room vec
     pub fn create_room(
         &mut self,
         name: &str,
@@ -44,10 +44,10 @@ impl World {
 
     /*
      * Initializes all the rooms.
-     * indices must be planned ahead of time. It would help if you drew a map and numbered them.
+     * Indices must be planned ahead of time. It would help if you drew a map and numbered them.
      */
     pub fn init_rooms(&mut self) {
-        // Example rooms, including a simple maze
+        // Example rooms for testing, all rooms for your game need to be placed in here.
         let room1 = self.create_room(
             "Starting Room",
             "You are in the starting room. There's an exit to the north.",
