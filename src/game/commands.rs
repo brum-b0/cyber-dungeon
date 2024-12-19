@@ -92,9 +92,9 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                         .items
                         .push(item);
                         player.remove_item(parts[1]);
-                        format!("You dropped the {}", item_name)
+                        format!("You dropped the {}.", item_name)
                     } else {
-                        "There's nothing to drop".to_string()
+                        "You don't have that.".to_string()
                     }
             }
         }
