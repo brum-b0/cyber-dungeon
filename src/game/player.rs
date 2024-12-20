@@ -3,8 +3,8 @@ use crate::game::world::World;
 
 #[derive(Debug, Clone)]
 pub struct Player {
-    pub current_room: usize,       
-    pub inventory: Vec<Item>,     
+    pub current_room: usize,
+    pub inventory: Vec<Item>,
 }
 
 impl Player {
@@ -19,8 +19,7 @@ impl Player {
     pub fn take_item(&mut self, item: Item) {
         self.inventory.push(item);
     }
-    
-    
+
     pub fn remove_item(&mut self, item_name: &str) -> Option<Item> {
         if let Some(index) = self.inventory.iter().position(|i| i.name == item_name) {
             Some(self.inventory.remove(index))
