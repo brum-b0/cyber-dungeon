@@ -31,7 +31,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 }
             }
         }
-        "look" => {
+        "look" => {//comment update test commit fix
             //shows room description and debug print room items and exits
             let current_room = &world.rooms[player.current_room];
             format!(
