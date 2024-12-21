@@ -96,6 +96,13 @@ impl World {
         self.npcs.push(npc);
         self.npcs.len() - 1
     }
+
+    /* INIT FN'S BELOW
+     * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     * ==================================================================================================================
+     */
+
+
     /* create all world npcs and place them in rooms accordingly.
      * Npcs, like players are not truly inside of a room, they are just have a current room they can look at.
      *
@@ -106,8 +113,7 @@ impl World {
             (
                 1,
                 vec![
-                    "Greetings Traveler. I hope you found that key I left in the previous room."
-                        .to_string(),
+                    "Greetings Traveler. I hope you found that key I left in the previous room.".to_string(),
                     "You will find that you may need it here or there.".to_string(),
                     "Good luck on your quest, perhaps we shall meet again soon.".to_string(),
                 ],

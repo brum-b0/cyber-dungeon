@@ -134,13 +134,34 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
             }
         }
         "help" => {
-            // end each line as \n\ for readability. an ending `\` alone lets you format text to new lines`
+            // end each line as \n\ for readability for both dev and user
             "this is the help page\n\
             you can view it like this and\n\
             it stays in place\n\
             test newline\
             "
             .to_string()
+        }
+        "eat" => {
+            if parts.len() < 2 {
+                "Eat what?".to_string()
+            } else {
+                let item_name = parts[1];
+
+                if let Some(drop_item) = player.inventory.iter_mut().find(|i| i.name == item_name) {
+                    
+                    if drop_item.can_eat == true {
+                        player.remove_item(parts[1]);
+                        format!("You ate the {}.", item_name)
+                    } else {
+                        "You can't eat that.".to_string()
+                    }
+                    
+                } else {
+                    "You don't have that.".to_string()
+                }
+
+            }
         }
 
         _ => "Unknown command.".to_string(), //generic response to things we dont' recognize :)

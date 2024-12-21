@@ -42,6 +42,10 @@ fn main() {
             break;
         }
 
+        //flag checker function here
+        //maybe set a bool for each room 'player visited'
+        //check each room flag, custom logic for event triggers, npc movement, etc
+
         let response = process_command(&input, &mut player, &mut world);
         println!();
         println!("{}", response);
