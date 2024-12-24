@@ -4,7 +4,7 @@ use crate::game::world::World;
 #[derive(Debug, Clone)]
 pub struct Player {
     pub current_room: usize,
-    pub inventory: Vec<Item>,
+    pub inventory: Vec<Item>,// this may need to be converted to a hashmap
     pub health_points: i32,
     pub attack_power: i32,
     pub equipment: Vec<Item>,
