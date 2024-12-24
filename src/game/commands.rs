@@ -31,7 +31,8 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 }
             }
         }
-        "look" => {//comment update test commit fix
+        "look" => {
+            //comment update test commit fix
             //shows room description and debug print room items and exits
             let current_room = &world.rooms[player.current_room];
             format!(
@@ -103,7 +104,7 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 if let Some(drop_item) = player.inventory.iter_mut().find(|i| i.name == item_name) {
                     let item = drop_item.clone();
                     world.rooms[player.current_room].items.push(item);
-                    player.remove_item(parts[1]);
+                    player.remove_item(item_name);
                     format!("You dropped the {}.", item_name)
                 } else {
                     "You don't have that.".to_string()
@@ -149,20 +150,71 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
                 let item_name = parts[1];
 
                 if let Some(drop_item) = player.inventory.iter_mut().find(|i| i.name == item_name) {
-                    
                     if drop_item.can_eat == true {
+                        player.health_points += drop_item.heal_amount;
                         player.remove_item(parts[1]);
                         format!("You ate the {}.", item_name)
                     } else {
                         "You can't eat that.".to_string()
                     }
-                    
                 } else {
                     "You don't have that.".to_string()
+                }
+            }
+        }
+        //status command display hp, ap, and equipment
+        "status" => {
+            let gear = player.equipment.iter().map(|i| &i.name).collect::<Vec<_>>();
+            format!(
+                "Equipment: {:?}\n\
+                HP: {}      AP: {}
+            ", gear, player.health_points, player.attack_power)
+        }
+        //equip an item
+        "equip" => {
+            if parts.len() < 2 {
+                "Equip what?".to_string()
+            } else {
+                
+                let item_name = parts[1];
+                //search equipment for item name
+                if let Some(equip_item) = player.equipment.iter().find(|i| i.name == item_name) {
+                    "You've already equipped that.".to_string()
+                } else {
+                    //find item in inventory
+                    if let Some(equip_item) = player.inventory.iter().find(|i| i.name == item_name) {
+                        let item = equip_item.clone();
+                        player.attack_power += item.attack_increase_amount;
+                        player.equip_item(item); 
+                        format!("You equipped the {}.", item_name)
+
+                    } else {
+                        "You don't have that.".to_string()
+                    }
+                }
+                
+            }
+        }
+        //unequip an item
+        "unequip" => {
+            if parts.len() < 2 {
+                "Unequip what?".to_string()
+            } else {
+                let item_name = parts[1];
+                //search equipment for item name
+                if let Some(equip_item) = player.equipment.iter().find(|i| i.name == item_name) {
+                    player.attack_power -= equip_item.attack_increase_amount;
+                    player.unequip_item(item_name);
+
+                    format!("You unequipped the {}", item_name)
+                } else {
+                    "You don't have that equipped.".to_string()
                 }
 
             }
         }
+        //fight an npc -> if hostile jump into fight -> if not hostile ask if sure
+            // fight creates a new combat loop
 
         _ => "Unknown command.".to_string(), //generic response to things we dont' recognize :)
     }

@@ -1,10 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
 use serde::de::value::UnitDeserializer;
 
 pub struct World {
     pub rooms: Vec<Room>, // List of all rooms in the game world
     pub npcs: Vec<Npc>,   // list of all npcs in the game world
+    pub flags: HashMap<String, bool>
 }
 
 #[derive(Debug, Clone)]
@@ -21,6 +22,10 @@ pub struct Item {
     pub description: String,
     pub can_take: bool, //some objects cannot/should not be picked up
     pub can_eat: bool,
+    pub can_equip: bool,
+    pub heal_amount: i32,
+    pub attack_increase_amount: i32
+    
 }
 
 #[derive(Debug, Clone)]
@@ -30,7 +35,12 @@ pub struct Npc {
     pub current_room: usize,
     pub all_dialogues: HashMap<usize, Vec<String>>, //dialogue vector based on room index
     pub dialogue_counter: usize,                    // set this to zero
+    pub health_points: i32, // basic hp
+    pub attack_power: i32, // basic attack
+    pub hostile: bool, // hostility state, monsters can be considered npcs as well as hostile npcs like in dark souls
 }
+
+
 
 impl Npc {
     pub fn speak_dialogue(&mut self) -> String {
@@ -58,7 +68,18 @@ impl World {
         World {
             rooms: Vec::new(),
             npcs: Vec::new(),
+            flags: HashMap::new(),
         }
+    }
+
+    //event flag setter and getter
+    pub fn set_flag(&mut self, key: &str, value: bool) {
+        self.flags.insert(key.to_string(), value);
+    }
+
+    pub fn get_flag(&self, key: &str) -> bool {
+        *self.flags.get(key)
+            .unwrap_or(&false)
     }
 
     // Creates and adds a room to the world, returning its index so we can map adjacent rooms to the world room vec
@@ -85,6 +106,9 @@ impl World {
         current_dialogue: Vec<String>,
         current_room: usize,
         all_dialogues: HashMap<usize, Vec<String>>,
+        hp: i32,
+        ap: i32,
+        hostility: bool
     ) -> usize {
         let npc = Npc {
             name: name.to_string(),
@@ -92,6 +116,10 @@ impl World {
             current_room,
             all_dialogues,
             dialogue_counter: 0,
+            health_points: hp,
+            attack_power: ap,
+            hostile: hostility
+
         };
         self.npcs.push(npc);
         self.npcs.len() - 1
@@ -105,6 +133,7 @@ impl World {
 
     /* create all world npcs and place them in rooms accordingly.
      * Npcs, like players are not truly inside of a room, they are just have a current room they can look at.
+     * Monsters, creatures and bosses are all Npcs.
      *
      */
     pub fn init_npcs(&mut self) {
@@ -116,11 +145,36 @@ impl World {
                     "Greetings Traveler. I hope you found that key I left in the previous room.".to_string(),
                     "You will find that you may need it here or there.".to_string(),
                     "Good luck on your quest, perhaps we shall meet again soon.".to_string(),
-                ],
+                ]
             ),
-            (3, vec!["Hello again traveler.".to_string()]),
+            (
+                3, //dialogue for room 3. make sure to move npc after skeleton is defeated
+                vec![
+                    "Hello again traveler.".to_string(),
+                    "Thanks for getting rid of that skeleton in the other room.".to_string(),
+                    "I must be going soon. Take care.".to_string()
+
+                ]
+            ),
         ]);
-        self.create_npc("Merlin", merlin_dialogues[&1].clone(), 1, merlin_dialogues);
+
+        //dialogue/quest npc
+        self.create_npc(
+            "Old Wizard",
+            merlin_dialogues[&1].clone(),
+            1,
+            merlin_dialogues,
+            20,
+            20,
+            false
+        );
+        self.create_npc("Skeleton", 
+        Vec::new(), 
+        2, 
+        HashMap::new(), 
+        50, 
+        10, 
+        true);
     }
     /*
      * Initializes all the rooms.
@@ -136,6 +190,9 @@ impl World {
                 description: "A small rusty key.".to_string(),
                 can_take: true,
                 can_eat: true,
+                can_equip: false,
+                heal_amount: -10,
+                attack_increase_amount: 0
             }],
             HashMap::from([("north".to_string(), 1)]),
         );
@@ -143,7 +200,25 @@ impl World {
         let room2 = self.create_room(
             "Maze Entrance",
             "You stand at the entrance of a dark maze. Exits lead in all directions.",
-            vec![],
+            vec![Item {
+                name: "Broken_Sword".to_string(),
+                description: "Not much use unless you're out of options.".to_string(),
+                can_take: true,
+                can_eat: false,
+                can_equip: true,
+                heal_amount: 0,
+                attack_increase_amount: 10
+                },
+                Item {
+                    name: "Healing_Grass".to_string(),
+                    description: "Heals a small amount of health.".to_string(),
+                    can_take: true,
+                    can_eat: true,
+                    can_equip: false,
+                    heal_amount: 20,
+                    attack_increase_amount: 0
+                }
+            ],
             HashMap::from([
                 ("south".to_string(), room1), //either strategy here works
                 ("north".to_string(), 2), // but I prefer direct index mapping using a drawing of a world map

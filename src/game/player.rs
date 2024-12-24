@@ -5,6 +5,9 @@ use crate::game::world::World;
 pub struct Player {
     pub current_room: usize,
     pub inventory: Vec<Item>,
+    pub health_points: i32,
+    pub attack_power: i32,
+    pub equipment: Vec<Item>,
 }
 
 impl Player {
@@ -13,11 +16,26 @@ impl Player {
         Player {
             current_room: starting_room,
             inventory: Vec::new(),
+            health_points: 100,
+            attack_power: 10,
+            equipment: Vec::new()
         }
+    }
+
+    pub fn equip_item(&mut self, item: Item) {
+        self.equipment.push(item);
     }
     //takes an item and adds it to player inventory vec
     pub fn take_item(&mut self, item: Item) {
         self.inventory.push(item);
+    }
+
+    pub fn unequip_item(&mut self, item_name: &str) -> Option<Item> {
+        if let Some(index) = self.equipment.iter().position(|i| i.name == item_name) {
+            Some(self.equipment.remove(index))
+        } else {
+            None
+        }
     }
 
     pub fn remove_item(&mut self, item_name: &str) -> Option<Item> {
