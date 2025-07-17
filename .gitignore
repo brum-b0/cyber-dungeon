@@ -1,6 +1,0 @@
-/target
-*.rs.bk
-*.rs.swap
-/.kiro
-.vscode/
-.gitignore
