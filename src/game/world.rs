@@ -160,7 +160,7 @@ impl World {
 
         //dialogue/quest npc
         self.create_npc(
-            "Old Wizard",
+            "Merlin",
             merlin_dialogues[&1].clone(),
             1,
             merlin_dialogues,
@@ -240,5 +240,7 @@ impl World {
             vec![],
             HashMap::from([("west".to_string(), room2)]),
         );
+
+        
     }
 }

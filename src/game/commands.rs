@@ -1,6 +1,7 @@
 use super::{
     player::{self, Player},
     world::World,
+    combat::Combat,
 };
 
 pub fn process_command(command: &str, player: &mut Player, world: &mut World) -> String {
@@ -213,8 +214,44 @@ pub fn process_command(command: &str, player: &mut Player, world: &mut World) ->
 
             }
         }
-        //fight an npc -> if hostile jump into fight -> if not hostile ask if sure
-            // fight creates a new combat loop
+        "fight" | "attack" => {
+            if parts.len() < 2 {
+                "Fight whom?".to_string()
+            } else {
+                let npc_name = parts[1];
+                
+                // Find the NPC in the current room
+                if let Some((npc_index, _)) = world
+                    .npcs
+                    .iter()
+                    .enumerate()
+                    .find(|(_, npc)| npc.name == npc_name && npc.current_room == player.current_room)
+                {
+                    let npc = &world.npcs[npc_index];
+                    
+                    if npc.hostile {
+                        // Hostile NPC - start combat immediately
+                        Combat::start_combat(player, world, npc_index)
+                    } else {
+                        // Non-hostile NPC - ask for confirmation
+                        use std::io::{self, Write};
+                        print!("Are you sure you want to attack {}? (y/n): ", npc.name);
+                        io::stdout().flush().unwrap();
+                        
+                        let mut input = String::new();
+                        io::stdin().read_line(&mut input).unwrap();
+                        
+                        if input.trim().to_lowercase() == "y" || input.trim().to_lowercase() == "yes" {
+                            Combat::start_combat(player, world, npc_index)
+                        } else {
+                            "You decide not to attack.".to_string()
+                        }
+                    }
+                } else {
+                    "There's no one here by that name to fight.".to_string()
+                }
+            }
+        }
 
         _ => "Unknown command.".to_string(), //generic response to things we dont' recognize :)
     }
